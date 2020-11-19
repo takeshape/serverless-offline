@@ -29,6 +29,20 @@ var id = 0;
 
 function _classPrivateFieldLooseKey(name) { return "__private_" + id++ + "_" + name; }
 
+var _cliOptions = _classPrivateFieldLooseKey("cliOptions");
+
+var _http = _classPrivateFieldLooseKey("http");
+
+var _options = _classPrivateFieldLooseKey("options");
+
+var _schedule = _classPrivateFieldLooseKey("schedule");
+
+var _webSocket = _classPrivateFieldLooseKey("webSocket");
+
+var _lambda = _classPrivateFieldLooseKey("lambda");
+
+var _serverless = _classPrivateFieldLooseKey("serverless");
+
 class ServerlessOffline {
   constructor(serverless, cliOptions) {
     Object.defineProperty(this, _cliOptions, {
@@ -335,6 +349,12 @@ class ServerlessOffline {
             httpEvent.http = { ...httpApi,
               isHttpApi: true
             };
+
+            if (!httpEvent.http.payload) {
+              if (service.provider.httpApi) {
+                httpEvent.http.payload = service.provider.httpApi.payload || '1.0';
+              }
+            }
           }
 
           if (http && http.private) {
@@ -401,17 +421,3 @@ class ServerlessOffline {
 }
 
 exports.default = ServerlessOffline;
-
-var _cliOptions = _classPrivateFieldLooseKey("cliOptions");
-
-var _http = _classPrivateFieldLooseKey("http");
-
-var _options = _classPrivateFieldLooseKey("options");
-
-var _schedule = _classPrivateFieldLooseKey("schedule");
-
-var _webSocket = _classPrivateFieldLooseKey("webSocket");
-
-var _lambda = _classPrivateFieldLooseKey("lambda");
-
-var _serverless = _classPrivateFieldLooseKey("serverless");

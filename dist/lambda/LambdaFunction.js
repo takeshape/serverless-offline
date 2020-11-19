@@ -44,6 +44,40 @@ const {
   ceil
 } = Math;
 
+var _artifact = _classPrivateFieldLooseKey("artifact");
+
+var _clientContext = _classPrivateFieldLooseKey("clientContext");
+
+var _codeDir = _classPrivateFieldLooseKey("codeDir");
+
+var _event = _classPrivateFieldLooseKey("event");
+
+var _executionTimeEnded = _classPrivateFieldLooseKey("executionTimeEnded");
+
+var _executionTimeStarted = _classPrivateFieldLooseKey("executionTimeStarted");
+
+var _functionKey = _classPrivateFieldLooseKey("functionKey");
+
+var _functionName = _classPrivateFieldLooseKey("functionName");
+
+var _handlerRunner = _classPrivateFieldLooseKey("handlerRunner");
+
+var _idleTimeStarted = _classPrivateFieldLooseKey("idleTimeStarted");
+
+var _initialized = _classPrivateFieldLooseKey("initialized");
+
+var _lambdaContext = _classPrivateFieldLooseKey("lambdaContext");
+
+var _lambdaDir = _classPrivateFieldLooseKey("lambdaDir");
+
+var _memorySize = _classPrivateFieldLooseKey("memorySize");
+
+var _region = _classPrivateFieldLooseKey("region");
+
+var _runtime = _classPrivateFieldLooseKey("runtime");
+
+var _timeout = _classPrivateFieldLooseKey("timeout");
+
 class LambdaFunction {
   // can be 'BUSY' or 'IDLE'
   constructor(functionKey, functionDefinition, serverless, options) {
@@ -341,37 +375,3 @@ class LambdaFunction {
 }
 
 exports.default = LambdaFunction;
-
-var _artifact = _classPrivateFieldLooseKey("artifact");
-
-var _clientContext = _classPrivateFieldLooseKey("clientContext");
-
-var _codeDir = _classPrivateFieldLooseKey("codeDir");
-
-var _event = _classPrivateFieldLooseKey("event");
-
-var _executionTimeEnded = _classPrivateFieldLooseKey("executionTimeEnded");
-
-var _executionTimeStarted = _classPrivateFieldLooseKey("executionTimeStarted");
-
-var _functionKey = _classPrivateFieldLooseKey("functionKey");
-
-var _functionName = _classPrivateFieldLooseKey("functionName");
-
-var _handlerRunner = _classPrivateFieldLooseKey("handlerRunner");
-
-var _idleTimeStarted = _classPrivateFieldLooseKey("idleTimeStarted");
-
-var _initialized = _classPrivateFieldLooseKey("initialized");
-
-var _lambdaContext = _classPrivateFieldLooseKey("lambdaContext");
-
-var _lambdaDir = _classPrivateFieldLooseKey("lambdaDir");
-
-var _memorySize = _classPrivateFieldLooseKey("memorySize");
-
-var _region = _classPrivateFieldLooseKey("region");
-
-var _runtime = _classPrivateFieldLooseKey("runtime");
-
-var _timeout = _classPrivateFieldLooseKey("timeout");

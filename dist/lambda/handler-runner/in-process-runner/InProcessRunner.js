@@ -7,9 +7,9 @@ exports.default = void 0;
 
 var _perf_hooks = require("perf_hooks");
 
-var _clearModule = _interopRequireDefault(require("clear-module"));
+var path = _interopRequireWildcard(require("path"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var fs = _interopRequireWildcard(require("fs"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -20,6 +20,81 @@ function _classPrivateFieldLooseBase(receiver, privateKey) { if (!Object.prototy
 var id = 0;
 
 function _classPrivateFieldLooseKey(name) { return "__private_" + id++ + "_" + name; }
+
+const clearModule = (fP, opts) => {
+  const options = opts !== null && opts !== void 0 ? opts : {};
+  let filePath = fP;
+
+  if (!require.cache[filePath]) {
+    const dirname = path.dirname(filePath);
+
+    for (const fn of fs.readdirSync(dirname)) {
+      const fullPath = path.resolve(dirname, fn);
+
+      if (fullPath.substr(0, filePath.length + 1) === `${filePath}.` && require.cache[fullPath]) {
+        filePath = fullPath;
+        break;
+      }
+    }
+  }
+
+  if (require.cache[filePath]) {
+    // Remove file from parent cache
+    if (require.cache[filePath].parent) {
+      let i = require.cache[filePath].parent.children.length;
+
+      if (i) {
+        do {
+          i -= 1;
+
+          if (require.cache[filePath].parent.children[i].id === filePath) {
+            require.cache[filePath].parent.children.splice(i, 1);
+          }
+        } while (i);
+      }
+    }
+
+    const cld = require.cache[filePath].children;
+    delete require.cache[filePath];
+
+    for (const c of cld) {
+      // Unload any non node_modules children
+      if (!c.filename.match(/node_modules/)) {
+        clearModule(c.id, { ...options,
+          cleanup: false
+        });
+      }
+    }
+
+    if (opts.cleanup) {
+      // Cleanup any node_modules that are orphans
+      let cleanup = false;
+
+      do {
+        cleanup = false;
+
+        for (const fn of Object.keys(require.cache)) {
+          if (require.cache[fn].id !== '.' && require.cache[fn].parent && require.cache[fn].parent.id !== '.' && !require.cache[require.cache[fn].parent.id]) {
+            delete require.cache[fn];
+            cleanup = true;
+          }
+        }
+      } while (cleanup);
+    }
+  }
+};
+
+var _env = _classPrivateFieldLooseKey("env");
+
+var _functionKey = _classPrivateFieldLooseKey("functionKey");
+
+var _handlerName = _classPrivateFieldLooseKey("handlerName");
+
+var _handlerPath = _classPrivateFieldLooseKey("handlerPath");
+
+var _timeout = _classPrivateFieldLooseKey("timeout");
+
+var _allowCache = _classPrivateFieldLooseKey("allowCache");
 
 class InProcessRunner {
   constructor(functionKey, handlerPath, handlerName, env, timeout, allowCache) {
@@ -72,7 +147,9 @@ class InProcessRunner {
     Object.assign(process.env, _classPrivateFieldLooseBase(this, _env)[_env]); // lazy load handler with first usage
 
     if (!_classPrivateFieldLooseBase(this, _allowCache)[_allowCache]) {
-      (0, _clearModule.default)(_classPrivateFieldLooseBase(this, _handlerPath)[_handlerPath]);
+      clearModule(_classPrivateFieldLooseBase(this, _handlerPath)[_handlerPath], {
+        cleanup: true
+      });
     }
 
     const {
@@ -144,15 +221,3 @@ class InProcessRunner {
 }
 
 exports.default = InProcessRunner;
-
-var _env = _classPrivateFieldLooseKey("env");
-
-var _functionKey = _classPrivateFieldLooseKey("functionKey");
-
-var _handlerName = _classPrivateFieldLooseKey("handlerName");
-
-var _handlerPath = _classPrivateFieldLooseKey("handlerPath");
-
-var _timeout = _classPrivateFieldLooseKey("timeout");
-
-var _allowCache = _classPrivateFieldLooseKey("allowCache");

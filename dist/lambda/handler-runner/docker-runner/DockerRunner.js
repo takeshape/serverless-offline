@@ -17,6 +17,10 @@ var id = 0;
 
 function _classPrivateFieldLooseKey(name) { return "__private_" + id++ + "_" + name; }
 
+var _codeDir = _classPrivateFieldLooseKey("codeDir");
+
+var _container = _classPrivateFieldLooseKey("container");
+
 class DockerRunner {
   constructor(funOptions, env, dockerOptions) {
     Object.defineProperty(this, _codeDir, {
@@ -62,7 +66,3 @@ class DockerRunner {
 }
 
 exports.default = DockerRunner;
-
-var _codeDir = _classPrivateFieldLooseKey("codeDir");
-
-var _container = _classPrivateFieldLooseKey("container");

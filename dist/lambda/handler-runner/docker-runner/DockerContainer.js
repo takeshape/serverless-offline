@@ -51,6 +51,32 @@ const {
   keys
 } = Object;
 
+var _dockerPort = _classPrivateFieldLooseKey("dockerPort");
+
+var _containerId = _classPrivateFieldLooseKey("containerId");
+
+var _env = _classPrivateFieldLooseKey("env");
+
+var _functionKey = _classPrivateFieldLooseKey("functionKey");
+
+var _handler = _classPrivateFieldLooseKey("handler");
+
+var _imageNameTag = _classPrivateFieldLooseKey("imageNameTag");
+
+var _image = _classPrivateFieldLooseKey("image");
+
+var _runtime = _classPrivateFieldLooseKey("runtime");
+
+var _layers = _classPrivateFieldLooseKey("layers");
+
+var _port = _classPrivateFieldLooseKey("port");
+
+var _provider = _classPrivateFieldLooseKey("provider");
+
+var _dockerOptions = _classPrivateFieldLooseKey("dockerOptions");
+
+var _lambda = _classPrivateFieldLooseKey("lambda");
+
 class DockerContainer {
   constructor(env, functionKey, handler, runtime, layers, provider, dockerOptions) {
     Object.defineProperty(this, _containerId, {
@@ -349,33 +375,6 @@ class DockerContainer {
 }
 
 exports.default = DockerContainer;
-
-var _dockerPort = _classPrivateFieldLooseKey("dockerPort");
-
-var _containerId = _classPrivateFieldLooseKey("containerId");
-
-var _env = _classPrivateFieldLooseKey("env");
-
-var _functionKey = _classPrivateFieldLooseKey("functionKey");
-
-var _handler = _classPrivateFieldLooseKey("handler");
-
-var _imageNameTag = _classPrivateFieldLooseKey("imageNameTag");
-
-var _image = _classPrivateFieldLooseKey("image");
-
-var _runtime = _classPrivateFieldLooseKey("runtime");
-
-var _layers = _classPrivateFieldLooseKey("layers");
-
-var _port = _classPrivateFieldLooseKey("port");
-
-var _provider = _classPrivateFieldLooseKey("provider");
-
-var _dockerOptions = _classPrivateFieldLooseKey("dockerOptions");
-
-var _lambda = _classPrivateFieldLooseKey("lambda");
-
 Object.defineProperty(DockerContainer, _dockerPort, {
   writable: true,
   value: new _DockerPort.default()

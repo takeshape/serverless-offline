@@ -25,6 +25,14 @@ var id = 0;
 
 function _classPrivateFieldLooseKey(name) { return "__private_" + id++ + "_" + name; }
 
+var _env = _classPrivateFieldLooseKey("env");
+
+var _funOptions = _classPrivateFieldLooseKey("funOptions");
+
+var _options = _classPrivateFieldLooseKey("options");
+
+var _runner = _classPrivateFieldLooseKey("runner");
+
 class HandlerRunner {
   constructor(funOptions, options, env) {
     Object.defineProperty(this, _env, {
@@ -163,11 +171,3 @@ class HandlerRunner {
 }
 
 exports.default = HandlerRunner;
-
-var _env = _classPrivateFieldLooseKey("env");
-
-var _funOptions = _classPrivateFieldLooseKey("funOptions");
-
-var _options = _classPrivateFieldLooseKey("options");
-
-var _runner = _classPrivateFieldLooseKey("runner");

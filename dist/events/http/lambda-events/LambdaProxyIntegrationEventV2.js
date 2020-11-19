@@ -11,6 +11,8 @@ var _jsonwebtoken = require("jsonwebtoken");
 
 var _index = require("../../../utils/index.js");
 
+var _index2 = require("../../../config/index.js");
+
 function _classPrivateFieldLooseBase(receiver, privateKey) { if (!Object.prototype.hasOwnProperty.call(receiver, privateKey)) { throw new TypeError("attempted to use private field on non-instance"); } return receiver; }
 
 var id = 0;
@@ -25,9 +27,8 @@ const {
 } = JSON;
 const {
   assign
-} = Object; // https://serverless.com/framework/docs/providers/aws/events/apigateway/
-// https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-// http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-lambda.html
+} = Object; // https://www.serverless.com/framework/docs/providers/aws/events/http-api/
+// https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
 
 var _path = _classPrivateFieldLooseKey("path");
 
@@ -37,7 +38,7 @@ var _stage = _classPrivateFieldLooseKey("stage");
 
 var _stageVariables = _classPrivateFieldLooseKey("stageVariables");
 
-class LambdaProxyIntegrationEvent {
+class LambdaProxyIntegrationEventV2 {
   constructor(request, stage, path, stageVariables) {
     Object.defineProperty(this, _path, {
       writable: true,
@@ -62,8 +63,6 @@ class LambdaProxyIntegrationEvent {
   }
 
   create() {
-    const authPrincipalId = _classPrivateFieldLooseBase(this, _request)[_request].auth && _classPrivateFieldLooseBase(this, _request)[_request].auth.credentials && _classPrivateFieldLooseBase(this, _request)[_request].auth.credentials.principalId;
-
     const authContext = _classPrivateFieldLooseBase(this, _request)[_request].auth && _classPrivateFieldLooseBase(this, _request)[_request].auth.credentials && _classPrivateFieldLooseBase(this, _request)[_request].auth.credentials.context || {};
     let authAuthorizer;
 
@@ -144,61 +143,46 @@ class LambdaProxyIntegrationEvent {
     const httpMethod = method.toUpperCase();
     const requestTime = (0, _index.formatToClfTime)(received);
     const requestTimeEpoch = received;
+    const cookies = Object.entries(_classPrivateFieldLooseBase(this, _request)[_request].state).map(([key, value]) => `${key}=${value}`);
     return {
-      body,
+      version: '2.0',
+      routeKey: _classPrivateFieldLooseBase(this, _path)[_path],
+      rawPath: route.path,
+      rawQueryString: new URL(url, _index2.BASE_URL_PLACEHOLDER).searchParams.toString(),
+      cookies,
       headers,
-      httpMethod,
-      isBase64Encoded: false,
-      // TODO hook up
-      multiValueHeaders: (0, _index.parseMultiValueHeaders)( // NOTE FIXME request.raw.req.rawHeaders can only be null for testing (hapi shot inject())
-      rawHeaders || []),
-      multiValueQueryStringParameters: (0, _index.parseMultiValueQueryStringParameters)(url),
-      path: _classPrivateFieldLooseBase(this, _path)[_path],
-      pathParameters: (0, _index.nullIfEmpty)(pathParams),
       queryStringParameters: (0, _index.parseQueryStringParameters)(url),
       requestContext: {
         accountId: 'offlineContext_accountId',
         apiId: 'offlineContext_apiId',
         authorizer: authAuthorizer || assign(authContext, {
-          claims,
-          scopes,
-          // 'principalId' should have higher priority
-          principalId: authPrincipalId || process.env.PRINCIPAL_ID || 'offlineContext_authorizer_principalId' // See #24
-
+          jwt: {
+            claims,
+            scopes
+          }
         }),
         domainName: 'offlineContext_domainName',
         domainPrefix: 'offlineContext_domainPrefix',
-        extendedRequestId: (0, _index.createUniqueId)(),
-        httpMethod,
-        identity: {
-          accessKey: null,
-          accountId: process.env.SLS_ACCOUNT_ID || 'offlineContext_accountId',
-          apiKey: process.env.SLS_API_KEY || 'offlineContext_apiKey',
-          caller: process.env.SLS_CALLER || 'offlineContext_caller',
-          cognitoAuthenticationProvider: _headers['cognito-authentication-provider'] || process.env.SLS_COGNITO_AUTHENTICATION_PROVIDER || 'offlineContext_cognitoAuthenticationProvider',
-          cognitoAuthenticationType: process.env.SLS_COGNITO_AUTHENTICATION_TYPE || 'offlineContext_cognitoAuthenticationType',
-          cognitoIdentityId: _headers['cognito-identity-id'] || process.env.SLS_COGNITO_IDENTITY_ID || 'offlineContext_cognitoIdentityId',
-          cognitoIdentityPoolId: process.env.SLS_COGNITO_IDENTITY_POOL_ID || 'offlineContext_cognitoIdentityPoolId',
-          principalOrgId: null,
+        http: {
+          method: httpMethod,
+          path: _classPrivateFieldLooseBase(this, _path)[_path],
+          protocol: 'HTTP/1.1',
           sourceIp: remoteAddress,
-          user: 'offlineContext_user',
-          userAgent: _headers['user-agent'] || '',
-          userArn: 'offlineContext_userArn'
+          userAgent: _headers['user-agent'] || ''
         },
-        path: _classPrivateFieldLooseBase(this, _path)[_path],
-        protocol: 'HTTP/1.1',
-        requestId: (0, _index.createUniqueId)(),
-        requestTime,
-        requestTimeEpoch,
-        resourceId: 'offlineContext_resourceId',
-        resourcePath: route.path,
-        stage: _classPrivateFieldLooseBase(this, _stage)[_stage]
+        requestId: 'offlineContext_resourceId',
+        routeKey: _classPrivateFieldLooseBase(this, _path)[_path],
+        stage: _classPrivateFieldLooseBase(this, _stage)[_stage],
+        time: requestTime,
+        timeEpoch: requestTimeEpoch
       },
-      resource: route.path,
+      body,
+      pathParameters: (0, _index.nullIfEmpty)(pathParams),
+      isBase64Encoded: false,
       stageVariables: _classPrivateFieldLooseBase(this, _stageVariables)[_stageVariables]
     };
   }
 
 }
 
-exports.default = LambdaProxyIntegrationEvent;
+exports.default = LambdaProxyIntegrationEventV2;

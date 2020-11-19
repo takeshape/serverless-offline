@@ -37,6 +37,8 @@ var _serverlessLog = _interopRequireWildcard(require("../../serverlessLog.js"));
 
 var _index2 = require("../../utils/index.js");
 
+var _LambdaProxyIntegrationEventV = _interopRequireDefault(require("./lambda-events/LambdaProxyIntegrationEventV2.js"));
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -53,6 +55,18 @@ const {
   parse,
   stringify
 } = JSON;
+
+var _lambda = _classPrivateFieldLooseKey("lambda");
+
+var _lastRequestOptions = _classPrivateFieldLooseKey("lastRequestOptions");
+
+var _options = _classPrivateFieldLooseKey("options");
+
+var _serverless = _classPrivateFieldLooseKey("serverless");
+
+var _server = _classPrivateFieldLooseKey("server");
+
+var _terminalInfo = _classPrivateFieldLooseKey("terminalInfo");
 
 class HttpServer {
   constructor(serverless, options, lambda) {
@@ -502,7 +516,8 @@ class HttpServer {
         }
       } else if (integration === 'AWS_PROXY') {
         const stageVariables = _classPrivateFieldLooseBase(this, _serverless)[_serverless].service.custom ? _classPrivateFieldLooseBase(this, _serverless)[_serverless].service.custom.stageVariables : null;
-        const lambdaProxyIntegrationEvent = new _index.LambdaProxyIntegrationEvent(request, _classPrivateFieldLooseBase(this, _serverless)[_serverless].service.provider.stage, requestPath, stageVariables);
+        const LambdaProxyEvent = endpoint.isHttpApi && endpoint.payload === '2.0' ? _LambdaProxyIntegrationEventV.default : _index.LambdaProxyIntegrationEvent;
+        const lambdaProxyIntegrationEvent = new LambdaProxyEvent(request, _classPrivateFieldLooseBase(this, _serverless)[_serverless].service.provider.stage, requestPath, stageVariables);
         event = lambdaProxyIntegrationEvent.create();
       }
 
@@ -713,6 +728,18 @@ class HttpServer {
         }
       } else if (integration === 'AWS_PROXY') {
         /* LAMBDA PROXY INTEGRATION HAPIJS RESPONSE CONFIGURATION */
+        if (endpoint.isHttpApi && endpoint.payload === '2.0' && (typeof result === 'string' || !result.statusCode)) {
+          const body = typeof result === 'string' ? result : JSON.stringify(result);
+          result = {
+            isBase64Encoded: false,
+            statusCode: 200,
+            body,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          };
+        }
+
         if (result && !result.errorType) {
           statusCode = result.statusCode || 200;
         } else {
@@ -735,16 +762,19 @@ class HttpServer {
         }
 
         (0, _debugLog.default)('headers', headers);
+
+        const parseCookies = headerValue => {
+          const cookieName = headerValue.slice(0, headerValue.indexOf('='));
+          const cookieValue = headerValue.slice(headerValue.indexOf('=') + 1);
+          h.state(cookieName, cookieValue, {
+            encoding: 'none',
+            strictHeader: false
+          });
+        };
+
         Object.keys(headers).forEach(header => {
           if (header.toLowerCase() === 'set-cookie') {
-            headers[header].forEach(headerValue => {
-              const cookieName = headerValue.slice(0, headerValue.indexOf('='));
-              const cookieValue = headerValue.slice(headerValue.indexOf('=') + 1);
-              h.state(cookieName, cookieValue, {
-                encoding: 'none',
-                strictHeader: false
-              });
-            });
+            headers[header].forEach(parseCookies);
           } else {
             headers[header].forEach(headerValue => {
               // it looks like Hapi doesn't support multiple headers with the same name,
@@ -755,6 +785,11 @@ class HttpServer {
             });
           }
         });
+
+        if (endpoint.isHttpApi && endpoint.payload === '2.0' && result.cookies) {
+          result.cookies.forEach(parseCookies);
+        }
+
         response.header('Content-Type', 'application/json', {
           duplicate: false,
           override: false
@@ -984,15 +1019,3 @@ class HttpServer {
 }
 
 exports.default = HttpServer;
-
-var _lambda = _classPrivateFieldLooseKey("lambda");
-
-var _lastRequestOptions = _classPrivateFieldLooseKey("lastRequestOptions");
-
-var _options = _classPrivateFieldLooseKey("options");
-
-var _serverless = _classPrivateFieldLooseKey("serverless");
-
-var _server = _classPrivateFieldLooseKey("server");
-
-var _terminalInfo = _classPrivateFieldLooseKey("terminalInfo");

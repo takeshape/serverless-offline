@@ -19,6 +19,10 @@ var id = 0;
 
 function _classPrivateFieldLooseKey(name) { return "__private_" + id++ + "_" + name; }
 
+var _queue = _classPrivateFieldLooseKey("queue");
+
+var _portScanStart = _classPrivateFieldLooseKey("portScanStart");
+
 class DockerPort {
   async get() {
     return _classPrivateFieldLooseBase(DockerPort, _queue)[_queue].add(async () => {
@@ -33,11 +37,6 @@ class DockerPort {
 }
 
 exports.default = DockerPort;
-
-var _queue = _classPrivateFieldLooseKey("queue");
-
-var _portScanStart = _classPrivateFieldLooseKey("portScanStart");
-
 Object.defineProperty(DockerPort, _queue, {
   writable: true,
   value: new _pQueue.default({
